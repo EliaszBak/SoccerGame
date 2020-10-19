@@ -19,8 +19,7 @@ bool SoccerGame::OnUserUpdate(float fElapsedTime)
     handlePlayerOneMovement(fElapsedTime);
     Clear(olc::DARK_GREEN);
     drawField();
-    FillRect(iPlayerOneStartPosX, iPlayerOneStartPosY, iPlayerSize, iPlayerSize, olc::BLACK);
-    FillCircle(vBall, 20, olc::WHITE);
+    drawPlayerOne();
 	return true;
 }
 
@@ -48,22 +47,32 @@ void SoccerGame::drawField()
 void SoccerGame::handlePlayerOneMovement(float fElapsedTime)
 {
     if (GetKey(olc::Key::LEFT).bHeld)
-    {
-        std::cout << "fPlayer speed equals: " << fPlayerSPeed << std::endl;
-        std::cout <<"Current elapsedTime is: "<< fElapsedTime << std::endl;
-        std::cout << "Speed times time equals: "<<fPlayerSPeed * fElapsedTime << std::endl;
-        iPlayerOneStartPosX -= (fPlayerSPeed * fElapsedTime);
-    }
-    if (GetKey(olc::Key::RIGHT).bHeld) 
-    {
-        std::cout << "fPlayer speed equals: " << fPlayerSPeed << std::endl;
-        std::cout <<"Current elapsedTime is: "<< fElapsedTime << std::endl;
-        std::cout << "Speed times time equals: "<<fPlayerSPeed * fElapsedTime << std::endl;
-        iPlayerOneStartPosX = iPlayerOneStartPosX + (fPlayerSPeed * fElapsedTime);
-    }
-    if (GetKey(olc::Key::UP).bHeld) iPlayerOneStartPosY -= fPlayerSPeed;
-	if (GetKey(olc::Key::DOWN).bHeld) iPlayerOneStartPosY += fPlayerSPeed;
+        fPlayerOneStartPosX -= (fPlayerSPeed * fElapsedTime);
+    if (GetKey(olc::Key::RIGHT).bHeld)
+        fPlayerOneStartPosX += (fPlayerSPeed * fElapsedTime);
+    if (GetKey(olc::Key::UP).bHeld)
+        fPlayerOneStartPosY -= fPlayerSPeed * fElapsedTime;
+	if (GetKey(olc::Key::DOWN).bHeld)
+        fPlayerOneStartPosY += fPlayerSPeed * fElapsedTime;
 
-    if (iPlayerOneStartPosX < 11.0f) iPlayerOneStartPosX = 11.0f;
-    if (iPlayerOneStartPosX + iPlayerSize > 709.0f) iPlayerOneStartPosX = 709.0f - iPlayerSize;
+    if (fPlayerOneStartPosX < 11.0f)
+        fPlayerOneStartPosX = 11.0f;
+    if (fPlayerOneStartPosX + fPlayerSize > 709.0f)
+        fPlayerOneStartPosX = 709.0f - fPlayerSize;
+    if (fPlayerOneStartPosY < 11.0f) 
+        fPlayerOneStartPosY = 11.0f;
+    if (fPlayerOneStartPosY + fPlayerSize >1013.0f)
+        fPlayerOneStartPosY = 1013.0f - fPlayerSize;
+
+
+}
+
+void SoccerGame::drawPlayerOne()
+{
+    FillRect(fPlayerOneStartPosX, fPlayerOneStartPosY, fPlayerSize, fPlayerSize, olc::BLACK);
+}
+
+void SoccerGame::drawBall()
+{
+    FillCircle(vBall, 20, olc::WHITE);
 }
