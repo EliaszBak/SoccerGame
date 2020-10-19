@@ -9,14 +9,14 @@ class SoccerGame : public olc::PixelGameEngine
         bool OnUserCreate() override;
     private: 
         void drawField();
-        void handlePlayerOneMovement();
+        void handlePlayerOneMovement(float fElapsedTime);
     
         int iPlayerOneStartPosY {850};
         int iPlayerOneStartPosX {325};
         int iPlayerTwoStartPosX {325};
         int iPlayerTwoStartPosY {150};
         int iPlayerSize {60};
-        float fPlayerSPeed {3.0f};
+        float fPlayerSPeed {10.0f};
 
 	    olc::vf2d vBall = { 355.0f, 505.0f };
 };
