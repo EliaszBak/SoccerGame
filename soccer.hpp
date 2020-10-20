@@ -13,15 +13,12 @@ class SoccerGame : public olc::PixelGameEngine
         void drawPlayerOne();
         void drawBall();
 
+        float fPlayerSize;  // 60x60 as for now player is a square
+        float fPlayerSPeed; //pixels per sec
+		float fBallSize;
 
-        float fPlayerOneStartPosY {850};
-        float fPlayerOneStartPosX {325};
-        float fPlayerTwoStartPosX {325};
-        float fPlayerTwoStartPosY {150};
-
-        float fPlayerSize {60};  // 60x60 as for now player is a square
-        float fPlayerSPeed {250.0f}; //pixels per sec
-
-	    olc::vf2d vBall = { 355.0f, 505.0f };
+		olc::vf2d vPlayerOnePos;
+		olc::vf2d vPlayerTwoPos;
+	    olc::vf2d vBall;
         olc::vf2d vBallCollisionPoints{};
 };

@@ -4,7 +4,7 @@
 int main()
 {
 	SoccerGame demo;
-	if (demo.Construct(720, 1024, 2, 2))
+	if (demo.Construct(320, 640, 1, 1, false, false, true))
 		demo.Start();
 	return 0;
 }
