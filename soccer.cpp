@@ -9,21 +9,22 @@ SoccerGame::SoccerGame()
 }
 
 bool SoccerGame::OnUserCreate() 
-{        
-	fPlayerSize = { ScreenWidth() / 10.0f };  // 60x60 as for now player is a square
-	fPlayerSPeed = { ScreenHeight()/ 2.5f }; //pixels per sec
-	fBallSize = { ScreenWidth() / 20.0f };
+{
+    playerOne_ = Ball(ScreenWidth() / 2.0f, ScreenHeight() - (ScreenHeight() / 10.0f),
+        ScreenWidth() / 10.0f);        
+	fPlayerSpeed = { ScreenHeight()/ 2.5f }; //pixels per sec
+    ball_ = Ball(ScreenWidth()/2.0f, ScreenHeight()/2.0f, ScreenWidth()/20.0f);
 
-	vPlayerOnePos = { ScreenWidth() / 2.0f, ScreenHeight() - (ScreenHeight() / 10.0f) };
-	vPlayerTwoPos = { 325.0f, 150.0f };
-	vBall = { ScreenWidth()/2.0f, ScreenHeight()/2.0f };
-	
     return true;
 }
 
 bool SoccerGame::OnUserUpdate(float fElapsedTime)
 {
     handlePlayerOneMovement(fElapsedTime);
+    if (ballsCollides(playerOne_.centerPos, ball_.centerPos, playerOne_.fBallRadius, ball_.fBallRadius))
+    {
+        handleBallMovement(playerOne_, ball_);
+    }
     Clear(olc::DARK_GREEN);
     drawField();
     drawPlayerOne();
@@ -58,33 +59,75 @@ void SoccerGame::drawField()
 void SoccerGame::handlePlayerOneMovement(float fElapsedTime)
 {
     if (GetKey(olc::Key::LEFT).bHeld)
-		vPlayerOnePos.x -= (fPlayerSPeed * fElapsedTime);
+		playerOne_.centerPos.x -= (fPlayerSpeed * fElapsedTime);
     if (GetKey(olc::Key::RIGHT).bHeld)
-        vPlayerOnePos.x += (fPlayerSPeed * fElapsedTime);
+        playerOne_.centerPos.x += (fPlayerSpeed * fElapsedTime);
     if (GetKey(olc::Key::UP).bHeld)
-        vPlayerOnePos.y -= fPlayerSPeed * fElapsedTime;
+        playerOne_.centerPos.y -= fPlayerSpeed * fElapsedTime;
 	if (GetKey(olc::Key::DOWN).bHeld)
-        vPlayerOnePos.y += fPlayerSPeed * fElapsedTime;
+        playerOne_.centerPos.y += fPlayerSpeed * fElapsedTime;
 
-    if (vPlayerOnePos.x - fPlayerSize < 11.0f)
-        vPlayerOnePos.x = 11.0f + fPlayerSize;
-    if (vPlayerOnePos.x + fPlayerSize > ScreenWidth() - 11.0f)
-        vPlayerOnePos.x = ScreenWidth() - 11.0f - fPlayerSize;
+    if (playerOne_.centerPos.x - playerOne_.fBallRadius < 11.0f)
+        playerOne_.centerPos.x = 11.0f + playerOne_.fBallRadius;
+    if (playerOne_.centerPos.x + playerOne_.fBallRadius > ScreenWidth() - 11.0f)
+        playerOne_.centerPos.x = ScreenWidth() - 11.0f - playerOne_.fBallRadius;
 
-    if (vPlayerOnePos.y - fPlayerSize < 11.0f)
-        vPlayerOnePos.y = 11.0f + fPlayerSize;
-    if (vPlayerOnePos.y + fPlayerSize > ScreenHeight() -11.0f)
-        vPlayerOnePos.y = ScreenHeight() - 11.0f - fPlayerSize;
-
-
+    if (playerOne_.centerPos.y - playerOne_.fBallRadius < 11.0f)
+        playerOne_.centerPos.y = 11.0f + playerOne_.fBallRadius;
+    if (playerOne_.centerPos.y + playerOne_.fBallRadius > ScreenHeight() -11.0f)
+        playerOne_.centerPos.y = ScreenHeight() - 11.0f - playerOne_.fBallRadius;
 }
 
 void SoccerGame::drawPlayerOne()
 {
-    FillCircle(vPlayerOnePos, fPlayerSize, olc::BLACK);
+    FillCircle(playerOne_.centerPos, playerOne_.fBallRadius, olc::BLACK);
 }
 
 void SoccerGame::drawBall()
 {
-    FillCircle(vBall, fBallSize, olc::WHITE);
+    FillCircle(ball_.centerPos, ball_.fBallRadius, olc::WHITE);
+}
+
+bool SoccerGame::ballsCollides(olc::vf2d player, olc::vf2d ball, float playerRadius, float ballRadius)
+{
+    auto distanceBetweenBalls = calculateDistanceBetweenBallsCenters(player, ball);
+    
+    if ((playerRadius + ballRadius) >= distanceBetweenBalls)
+        return true;
+    
+    return false;
+}
+
+float SoccerGame::calculateDistanceBetweenBallsCenters(olc::vf2d player, olc::vf2d ball)
+{
+    return sqrt(pow(player.x - ball.x, 2.0f)
+        + pow(player.y - ball.y, 2.0f));
+}
+
+float SoccerGame::calculateOverlappedDistance(float distance, float playerRadius, float ballRadius)
+{
+    return 0.5f * (distance - playerRadius - ballRadius);
+}
+
+float SoccerGame::calculateCollisionPoint(olc::vf2d player, olc::vf2d ball, float playerRadius, float ballRadius)
+{
+    auto Dx = player.x - ball.x;
+    auto Dy = player.y - ball.y;
+
+    auto ABx = (ball.y - player.y) / (ball.x - player.y);
+    auto ABy = player.y - ABx * player.x;
+
+    return 0.0f;
+}
+
+void SoccerGame::handleBallMovement(Ball& player, Ball& ball)
+{
+    auto distance = calculateDistanceBetweenBallsCenters(player.centerPos, ball.centerPos);
+    auto overLapped = calculateOverlappedDistance(distance, player.fBallRadius, ball.fBallRadius);
+    
+    player.centerPos.x -= overLapped * (player.centerPos.x - ball.centerPos.x) / distance;
+    player.centerPos.y -= overLapped * (player.centerPos.y - ball.centerPos.y) / distance;
+
+    ball.centerPos.x += overLapped * (player.centerPos.x - ball.centerPos.x) / distance;
+    ball.centerPos.y += overLapped * (player.centerPos.y - ball.centerPos.y) / distance;
 }
