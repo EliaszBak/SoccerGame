@@ -1,6 +1,5 @@
 #include "soccer.hpp"
 
-
 int main()
 {
 	SoccerGame demo;
